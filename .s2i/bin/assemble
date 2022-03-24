@@ -13,7 +13,8 @@ if [ "$1" = "-h" ]; then
     exec $S2I_PATH/usage
 fi
 
-__check_common_already_loaded 2> /dev/null || source $S2I_PATH/common.sh
+#__check_common_already_loaded 2> /dev/null || source $S2I_PATH/common.sh
+common.sh
 
 case $BUILDER in
     [Gg][Rr][Aa][Dd][Ll][Ee])
