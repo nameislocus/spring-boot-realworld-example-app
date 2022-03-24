@@ -14,7 +14,7 @@ if [ "$1" = "-h" ]; then
 fi
 
 #__check_common_already_loaded 2> /dev/null || source $S2I_PATH/common.sh
-common.sh
+source common.sh
 
 case $BUILDER in
     [Gg][Rr][Aa][Dd][Ll][Ee])
