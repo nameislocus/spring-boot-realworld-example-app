@@ -13,7 +13,7 @@ export S2I_SOURCE_DIR=/tmp/src
 export OLD_S2I_PATH=/usr/local/s2i
 
 # If a gradle.build is present, this is a Gradle build scenario
-function build_gradle_project() {
+function gradle_s2i_build() {
   if [ -f "$S2I_SOURCE_DIR/build.gradle" ]; then
     echo "Building with gradle. $S2I_SOURCE_DIR/build.gradle found."
 
@@ -39,14 +39,13 @@ function build_gradle_project() {
 
     # Copy built artifacts (if any!) from the target/ directory
     # to the $DEPLOY_DIR directory for later deployment
-    copy_artifacts build/libs ${DEPLOYMENTS_DIR}
+#    copy_artifacts build/libs ${DEPLOYMENTS_DIR}
 
     # clean up after maven
     gradle clean
     popd &> /dev/null
   fi
 }
-
 
 # If a pom.xml is present, this is a normal build scenario - call default 'assemble' script
 function build_maven_project() {
@@ -95,6 +94,7 @@ function restore_artifacts() {
     fi
 }
 
+# original assemble
 set -e
 
 source "${JBOSS_CONTAINER_UTIL_LOGGING_MODULE}/logging.sh"
@@ -108,7 +108,7 @@ source "${JBOSS_CONTAINER_JAVA_S2I_MODULE}/maven-s2i-overrides"
 
 if [ -f "${S2I_SOURCE_DIR}/build.gradle" ]; then
 #    restore_artifacts
-    build_gradle_project
+    gradle_s2i_build
 elif [ -f "${S2I_SOURCE_DIR}/pom.xml" ]; then
 #    build_maven_project
     # invoke the build
