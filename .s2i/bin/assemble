@@ -37,68 +37,19 @@ function gradle_s2i_build() {
       exit $ERR
     fi
 
-    # Copy built artifacts (if any!) from the target/ directory
+    # Copy built artifacts (if any!) from the build/libs directory
     # to the $DEPLOY_DIR directory for later deployment
-#    copy_artifacts build/libs ${DEPLOYMENTS_DIR}
-cd build/libs ; find . -type f -not -iname '*-plain*' -exec cp '{}' '/deployments/{}' ';'; cd ../..
-
-ls -al /deployments/*
-ls -al build/libs/*
+    cd build/libs ; find . -type f -not -iname '*-plain*' -exec cp '{}' '/deployments/{}' ';'; cd ../..
+    echo "files in /deployments"
+    ls -al /deployments/*
 
     # clean up after maven
-#    gradle clean
+    gradle clean
     popd &> /dev/null
   fi
 }
 
-# If a pom.xml is present, this is a normal build scenario - call default 'assemble' script
-function build_maven_project() {
-  if [ -f "$S2I_SOURCE_DIR/pom.xml" ] ; then
-    echo "Building with maven. $S2I_SOURCE_DIR/pom.xml found."
-    exec $OLD_S2I_PATH/assemble
-  fi
-}
-
-function check_build() {
-  # As SpringBoot you should only have 1 fat jar
-  local jars_count=$(ls -1 $DEPLOYMENTS_DIR/*.jar | wc -l)
-  [ "$?" = "0" ] || die
-  if [ $jars_count -eq 1 ]; then
-    mv $DEPLOYMENTS_DIR/*.jar $DEPLOYMENTS_DIR/app.jar
-    if [ -f $DEPLOYMENTS_DIR/app.jar ] ; then
-      echo "Application jar file is located in $DEPLOYMENTS_DIR/app.jar"
-    else
-      die "Application could not be properly built"
-    fi
-  else
-    echo "There are $jars_count files found at ${DEPLOYMENTS_DIR}, but only one expected. If you are building a multi-jars project, use JAVA_APP_JAR variable"
-    die "Aborting..."
-  fi
-}
-
-function copy_artifacts() {
-    local dir=$1
-    local dest=$2
-
-    tar -C $dir -c . | tar -C $dest -x
-}
-
-function die() {
-  echo $*
-  exit 1
-}
-
-# Restore artifacts from the previous build (if they exist).
-#
-function restore_artifacts() {
-    local incremental=${S2I_DESTINATION}/artifacts
-
-    if [ -d $incremental ] ; then
-	copy_artifacts $incremental ${HOME}
-    fi
-}
-
-# original assemble
+###### original assemble
 set -e
 
 source "${JBOSS_CONTAINER_UTIL_LOGGING_MODULE}/logging.sh"
@@ -110,11 +61,10 @@ source "${JBOSS_CONTAINER_JAVA_S2I_MODULE}/s2i-core-hooks"
 # inject our overridden maven_s2i_*() functions
 source "${JBOSS_CONTAINER_JAVA_S2I_MODULE}/maven-s2i-overrides"
 
+# modify
 if [ -f "${S2I_SOURCE_DIR}/build.gradle" ]; then
-#    restore_artifacts
     gradle_s2i_build
 elif [ -f "${S2I_SOURCE_DIR}/pom.xml" ]; then
-#    build_maven_project
     # invoke the build
     maven_s2i_build
 fi
