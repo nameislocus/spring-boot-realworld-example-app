@@ -40,7 +40,9 @@ function gradle_s2i_build() {
     # Copy built artifacts (if any!) from the target/ directory
     # to the $DEPLOY_DIR directory for later deployment
 #    copy_artifacts build/libs ${DEPLOYMENTS_DIR}
-  cp build/libs/* /deployments
+  cp build/libs/* /deployments/*
+ls -al /deployments/*
+ls -al build/libs/*
 
     # clean up after maven
 #    gradle clean
