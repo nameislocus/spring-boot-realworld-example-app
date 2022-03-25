@@ -40,7 +40,7 @@ function gradle_s2i_build() {
     # Copy built artifacts (if any!) from the target/ directory
     # to the $DEPLOY_DIR directory for later deployment
 #    copy_artifacts build/libs ${DEPLOYMENTS_DIR}
-  cp !(build/libs/*-plain).jar /deployments/*
+cd build/libs; cp !(*-plain.jar) /deployments/ ; cd ../.. 
 ls -al /deployments/*
 ls -al build/libs/*
 
